@@ -26,6 +26,7 @@ QUALCOMM_QRB_ROS = " \
     qrb-sensor-client \
 	qrb-ros-system-monitor \
 	qrb-ros-system-monitor-interfaces \
+    qrb-ros-docker \
 "
 
 # If it is qrb ros sample, Please place all of them under this variable.
@@ -34,7 +35,7 @@ QRB_ROS_SAMPLE = " \
     simulation-sample-amr-simple-motion \
 "
 
-# If you do not work within the above two organizations and are preparing to merge your code into the Qualcomm Linux Intelligence Robotics Image, 
+# If you do not work within the above two organizations and are preparing to merge your code into the Qualcomm Linux Intelligence Robotics Image,
 # please place it in the following variable.
 EXTERNAL_OPENSOURCE = " \
     ${ROS_GST_BRIDGE} \
