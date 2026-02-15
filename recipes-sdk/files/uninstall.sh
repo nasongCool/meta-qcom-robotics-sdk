@@ -31,7 +31,11 @@ function main() {
     if lsb_release -a 2>/dev/null | grep -q "Ubuntu"; then
         uninstall_command="dpkg -r --force-depends"
     else
-        uninstall_command="opkg remove --force-depends --force-remove"
+        if command -v dnf >/dev/null 2>&1 || command -v yum >/dev/null 2>&1 || command -v rpm >/dev/null 2>&1; then
+            uninstall_command="rpm -e --nodeps"
+        else
+            uninstall_command="opkg remove --force-depends --force-remove"
+        fi
     fi
 
     # Read all package names into an array

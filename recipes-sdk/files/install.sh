@@ -23,7 +23,7 @@ function check_permission() {
 
 # scan packages in current path
 function scan_packages() {
-    FOUND_PKGS=`find ../packages -name "*.ipk" -o -name "*.deb" \
+    FOUND_PKGS=`find ../packages -name "*.ipk" -o -name "*.deb" -o -name "*.rpm"  \
         | grep -v "\-dbg_" \
         | grep -v "\-dev_" \
         | grep -v "\-staticdev_" \
@@ -36,7 +36,11 @@ function install_packages() {
     if lsb_release -a 2>/dev/null | grep -q "Ubuntu"; then
         install_command="dpkg -i --force-overwrite --force-depends "
     else
-        install_command="opkg install --force-reinstall --force-depends --force-overwrite"
+        if command -v dnf >/dev/null 2>&1 || command -v yum >/dev/null 2>&1 || command -v rpm >/dev/null 2>&1; then
+            install_command="rpm -ivh --replacepkgs --replacefiles --nodeps"
+        else
+            install_command="opkg install --force-reinstall --force-depends --force-overwrite"
+        fi
     fi
 
     for PKG_FILE in $FOUND_PKGS; do
@@ -52,8 +56,14 @@ function install_packages() {
     fi
 
     for pkg in $FOUND_PKGS; do
-        pkg_name=`echo $pkg | awk -F'/' '{print $NF}' | awk -F'_' '{print $1}'`
-        echo $pkg_name >> $PKG_LIST_FILE
+        if command -v dnf >/dev/null 2>&1 || command -v yum >/dev/null 2>&1 || command -v rpm >/dev/null 2>&1; then
+            pkg_name=`rpm -qp --qf '%{NAME}\n' "$pkg" 2>/dev/null \
+                    || echo "$pkg" | awk -F'/' '{print $NF}' \
+                    | sed -E 's/\.rpm$//; s/\.[^.]+$//; s/-[^.-]+$//; s/-[0-9][^-]*$//'`
+        else
+            pkg_name=`echo $pkg | awk -F'/' '{print $NF}' | awk -F'_' '{print $1}'`
+        fi
+    echo $pkg_name >> $PKG_LIST_FILE
     done
 }
 
