@@ -18,8 +18,7 @@ ROS_CN = "qrb_colorspace_convert_lib"
 ROS_BPN = "qrb_colorspace_convert_lib"
 
 ROS_BUILD_DEPENDS = " \
-    virtual/egl \
-    virtual/libgles2 \
+    qcom-adreno \
 "
 
 ROS_BUILDTOOL_DEPENDS = " \
@@ -30,7 +29,9 @@ ROS_EXPORT_DEPENDS = ""
 
 ROS_BUILDTOOL_EXPORT_DEPENDS = ""
 
-ROS_EXEC_DEPENDS = ""
+ROS_EXEC_DEPENDS = " \
+    qcom-adreno \
+"
 
 DEPENDS = "${ROS_BUILD_DEPENDS} ${ROS_BUILDTOOL_DEPENDS}"
 DEPENDS += "${ROS_EXPORT_DEPENDS} ${ROS_BUILDTOOL_EXPORT_DEPENDS}"
@@ -40,3 +41,9 @@ RDEPENDS:${PN} += "${ROS_EXEC_DEPENDS}"
 SRC_URI = "git://github.com/quic-qrb-ros/qrb_ros_color_space_convert.git;protocol=https;branch=stable/1.0.0-opengles"
 SRCREV = "e8af86baa9e55f0c196164bd5f0a574e134a0965"
 S = "${UNPACKDIR}/${PN}-${PV}/qrb_colorspace_convert_lib"
+
+do_configure:prepend() {
+    # Replace GLESv2 with Adreno version in CMakeLists.txt
+    sed -i 's|GLESv2|${STAGING_LIBDIR}/libGLESv2_adreno.so.2|g' ${S}/CMakeLists.txt
+    sed -i 's|EGL|${STAGING_LIBDIR}/libEGL_adreno.so.1|g' ${S}/CMakeLists.txt
+}
